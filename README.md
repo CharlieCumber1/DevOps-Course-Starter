@@ -29,3 +29,19 @@ You should see output similar to the following:
  * Debugger PIN: 226-556-590
 ```
 Now visit [`http://localhost:5000/`](http://localhost:5000/) in your web browser to view the app.
+
+## Configuration
+
+### Trello
+In order to use the app with your Trello account you will need to create an API key and token with the [`instructions here`](https://trello.com/app-key). 
+
+Additionally you will need to create a trello board with two lists to group pending and completed tasks. You will need the identifiers for the board and two lists. You can see the identifiers by navigating to the trello board in a braowser and adding '.json' to the url to view the raw JSON.
+
+You need to create a file in the root directory called "trello_config.py" with the following variables:
+```
+KEY = 'API key'
+TOKEN = 'API token'
+BOARD = 'Board ID'
+PENDING = 'Pending list ID'
+DONE = 'Done list ID'
+```
