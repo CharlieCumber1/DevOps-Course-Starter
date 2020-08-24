@@ -1,6 +1,4 @@
 from flask import Flask, render_template, request, redirect, url_for
-from operator import itemgetter
-from dotenv import load_dotenv
 import trello_items as trello
 from view_model import ViewModel
 

@@ -1,13 +1,15 @@
+import os
 from task_item import Item
 import requests
-import trello_config as config
 import json
 
 def get_auth_params():
-    return { 'key': config.KEY, 'token': config.TOKEN }
+    trello_key = os.environ.get('TRELLO_KEY')
+    trello_token = os.environ.get('TRELLO_TOKEN')
+    return { 'key': trello_key, 'token': trello_token }
 
 def build_url(endpoint):
-    return config.BASE_URL + endpoint
+    return 'https://api.trello.com/1' + endpoint
 
 def build_params(params = {}):
     full_params = get_auth_params()
@@ -16,8 +18,8 @@ def build_params(params = {}):
 
 def get_lists_info():
     params = build_params({ 'cards': 'open' })
-    url = build_url(f'/boards/{config.BOARD}/lists')
-
+    board_id = os.environ.get('TRELLO_BOARD')
+    url = build_url(f'/boards/{board_id}/lists')
     response = requests.get(url, params=params)
     lists = response.json()
     return lists
@@ -95,10 +97,22 @@ def create_board(name):
     response = requests.post(url, params=params)
     board = response.json()
     board_id = board['id']
+
+    create_list('Not Started', board_id)
+    create_list('In Progress', board_id)
+    create_list('Done', board_id)
+
     return board_id
 
 def delete_board(id):
     params = build_params()
     url = build_url(f'/boards/{id}')
     requests.delete(url, params=params)
+    return
+
+def create_list(name, board_id):
+    params = build_params({ 'name': name, 'idBoard': board_id })
+    url = build_url('/lists')
+
+    requests.post(url, params=params)
     return

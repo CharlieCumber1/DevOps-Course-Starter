@@ -7,21 +7,12 @@ import trello_items as trello
 class MockResponse:
     def __init__(self, url):
         self.url = url
-
-    # TODO the enviroment variables are not updating, so I have put boardId = 'None' to make this URL condition work, but it should be 'mock_board_id'
-
-    def json(self):
-        #if self.url == 'https://api.trello.com/1/boards/mock_board_id/lists':
-        if self.url.startswith('https://api.trello.com/1/boards'):
-            return [
+        self.list_info = [
                 {"id": "mock_list_id_not_started", "name": "Not Started"},
                 {"id": "mock_list_id_in_progress", "name": "In Progress"},
                 {"id": "mock_list_id_done", "name": "Done"}
             ]
-    
-        if self.url == 'https://api.trello.com/1/lists/mock_list_id_not_started/cards':
-            # return not started list
-            return [
+        self.not_started_list = [
                 {
                     "id": "5f2d2a02e5623c443d7d5190",
                     "dateLastActivity": "2020-08-07T10:16:34.157Z",
@@ -55,9 +46,7 @@ class MockResponse:
                     "name": "Item 4"
                 }
             ]
-        if self.url == 'https://api.trello.com/1/lists/mock_list_id_in_progress/cards':
-            # return in progress list
-            return [
+        self.in_progress_list = [
                 {
                     "id": "5f2d2a2b4ad6605817a8ad7c",
                     "dateLastActivity": "2020-08-07T10:17:15.007Z",
@@ -91,10 +80,7 @@ class MockResponse:
                     "name": "Item 8"
                 }
             ]
-
-        if self.url == 'https://api.trello.com/1/lists/mock_list_id_done/cards':
-            # return done list
-            return[
+        self.done_list = [
                 {
                     "id": "5f2d2a3ccea4473780f1adea",
                     "dateLastActivity": "2020-08-07T10:17:32.700Z",
@@ -129,6 +115,19 @@ class MockResponse:
                 }
             ]
 
+    def json(self):
+        if self.url == 'https://api.trello.com/1/boards/mock_board_id/lists':
+            return self.list_info
+    
+        if self.url == 'https://api.trello.com/1/lists/mock_list_id_not_started/cards':
+            return self.not_started_list
+        
+        if self.url == 'https://api.trello.com/1/lists/mock_list_id_in_progress/cards':
+            return self.in_progress_list
+
+        if self.url == 'https://api.trello.com/1/lists/mock_list_id_done/cards':
+            return self.done_list
+
 
 @pytest.fixture
 def client():
@@ -145,6 +144,11 @@ def test_index_page(monkeypatch, client):
     monkeypatch.setattr(requests, 'get', mock_get)
     response = client.get('/')
 
+    assert 'Item 4' in response.data.decode()
+    assert 'Item 5' in response.data.decode()
+    assert 'Item 8' in response.data.decode()
+    assert 'Item 9' in response.data.decode()
+    assert 'Item 12' in response.data.decode()
 
 def test_mock_list_info_response(monkeypatch, client):
     def mock_get(url, **kwargs):
